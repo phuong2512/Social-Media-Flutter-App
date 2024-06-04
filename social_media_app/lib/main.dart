@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:social_media_app/auth_firebase.dart';
-import 'auth_gate.dart';
+import 'package:social_media_app/auth_gate.dart';
+import 'package:social_media_app/home_screen.dart';
+import 'package:social_media_app/profile_screen.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
@@ -17,9 +19,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: AuthFirebase(),
+      home: const AuthFirebase(),
+      routes: {
+        '/auth_gate':(context) => const AuthGate(),
+        '/home_screen':(context) => const HomeScreen(),
+        '/profile_screen':(context) => ProfileScreen(),
+      },
     );
   }
 }

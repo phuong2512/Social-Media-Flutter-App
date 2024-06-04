@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -25,7 +26,7 @@ class _AuthGateState extends State<AuthGate> {
       body: mode == AuthMode.register
           ? Center(
               child: SingleChildScrollView(
-                physics: BouncingScrollPhysics(),
+                physics: const BouncingScrollPhysics(),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -35,7 +36,7 @@ class _AuthGateState extends State<AuthGate> {
                         borderRadius: BorderRadius.circular(90),
                       ),
                       child: const Icon(
-                        Icons.person,
+                        Icons.camera,
                         size: 80,
                         color: Colors.black,
                       ),
@@ -163,7 +164,7 @@ class _AuthGateState extends State<AuthGate> {
             )
           : Center(
               child: SingleChildScrollView(
-                physics: BouncingScrollPhysics(),
+                physics: const BouncingScrollPhysics(),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -173,7 +174,7 @@ class _AuthGateState extends State<AuthGate> {
                         borderRadius: BorderRadius.circular(90),
                       ),
                       child: const Icon(
-                        Icons.person,
+                        Icons.camera,
                         size: 80,
                         color: Colors.black,
                       ),
@@ -294,12 +295,14 @@ class _AuthGateState extends State<AuthGate> {
           password: password,
         );
       }
-      if (context.mounted) {
+      if (mounted) {
         Navigator.pop(context);
-      };
+      }
     } on FirebaseAuthException catch (e) {
-      Navigator.pop(context);
-      messageError(e.code, context);
+      if (mounted) {
+        Navigator.pop(context);
+        messageError(e.code, context);
+      }
     }
   }
 
@@ -318,17 +321,37 @@ class _AuthGateState extends State<AuthGate> {
       final email = emailController.text.trim();
       final password = passwordController.text.trim();
       try {
+        //create an user
         if (formKey.currentState!.validate()) {
-          await auth.createUserWithEmailAndPassword(
+          UserCredential? userCredential =
+              await auth.createUserWithEmailAndPassword(
             email: email,
             password: password,
           );
-          Navigator.pop(context);
+
+          //create and add user to firestore
+          addUserFirestore(userCredential);
+
+          if (mounted) Navigator.pop(context);
         }
       } on FirebaseAuthException catch (e) {
-        Navigator.pop(context);
-        messageError(e.code, context);
+        if (mounted) {
+          Navigator.pop(context);
+          messageError(e.code, context);
+        }
       }
+    }
+  }
+
+  Future<void> addUserFirestore(UserCredential? userCredential) async {
+    if (userCredential != null && userCredential.user != null) {
+      await FirebaseFirestore.instance
+          .collection("Users")
+          .doc(userCredential.user!.email)
+          .set({
+        'email': userCredential.user!.email,
+        'username': userController.text,
+      });
     }
   }
 }
