@@ -1,11 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'firebase_firestore.dart';
+import 'package:intl/intl.dart';
 
 class ProfileScreen extends StatelessWidget {
   ProfileScreen({super.key});
 
   final User? currentUser = FirebaseAuth.instance.currentUser;
+  final FirestoreDB firestoreDB = FirestoreDB();
 
   Future<DocumentSnapshot<Map<String, dynamic>>> getUserDetails() async {
     return await FirebaseFirestore.instance
@@ -36,8 +39,8 @@ class ProfileScreen extends StatelessWidget {
 
             return Center(
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  const Padding(padding: EdgeInsets.only(top: 25.0)),
                   Container(
                     decoration: BoxDecoration(
                         border: Border.all(color: Colors.black),
@@ -45,10 +48,10 @@ class ProfileScreen extends StatelessWidget {
                     padding: const EdgeInsets.all(25),
                     child: const Icon(
                       Icons.person,
-                      size: 64,
+                      size: 50,
                     ),
                   ),
-                  const SizedBox(height: 25),
+                  const SizedBox(height: 5),
                   Text(
                     user!['username'],
                     style: const TextStyle(
@@ -61,6 +64,129 @@ class ProfileScreen extends StatelessWidget {
                     user['email'],
                     style: const TextStyle(
                       fontSize: 12,
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+                  const Divider(
+                    thickness: 1,
+                    color: Colors.black,
+                    indent: 100,
+                    endIndent: 100,
+                  ),
+                  const Text(
+                    "My posts",
+                    style: TextStyle(
+                      fontSize: 25,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Expanded(
+                    child: StreamBuilder<QuerySnapshot>(
+                      stream: firestoreDB.getPostsByEmail(currentUser!.email!),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        } else if (!snapshot.hasData ||
+                            snapshot.data!.docs.isEmpty) {
+                          return const Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(20),
+                              child: Text("No new posts! Post something!"),
+                            ),
+                          );
+                        } else {
+                          final posts = snapshot.data!.docs;
+
+                          return ListView.builder(
+                            itemCount: posts.length,
+                            itemBuilder: (context, index) {
+                              final post = posts[index];
+                              String message = post['postMessage'];
+
+                              // Chuyển timestamp thành DateTime
+                              DateTime dateTime =
+                                  (post['timestamp'] as Timestamp).toDate();
+
+                              // Định dạng DateTime thành chuỗi thời gian
+                              String formattedTime =
+                                  DateFormat('HH:mm  |  yyyy-MM-dd')
+                                      .format(dateTime);
+
+                              List<dynamic> likes = post['Likes'];
+                              bool isLiked = likes.contains(FirebaseAuth.instance.currentUser!.email);
+
+                              return Padding(
+                                padding: const EdgeInsets.all(10),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(color: Colors.black),
+                                  ),
+                                  child: ListTile(
+                                    title: Text(message),
+                                    subtitle: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              formattedTime,
+                                              style: const TextStyle(
+                                                color: Colors.grey,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                    trailing: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        GestureDetector(
+                                          onTap: () {
+                                            firestoreDB.toggleLike(post);
+                                          },
+                                          child: Icon(
+                                            isLiked
+                                                ? Icons.favorite
+                                                : Icons.favorite_border,
+                                            color: isLiked ? Colors.red : Colors.grey,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 2),
+                                        Text(
+                                          '${likes.length}',
+                                          style: const TextStyle(
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 3),
+                                        GestureDetector(
+                                          onTap: () {},
+                                          child: const Icon(
+                                            Icons.create,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 3),
+                                        GestureDetector(
+                                          onTap: () {},
+                                          child: const Icon(
+                                            Icons.delete,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          );
+                        }
+                      },
                     ),
                   ),
                 ],
