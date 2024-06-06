@@ -54,4 +54,15 @@ class FirestoreDB {
         .snapshots();
     return postStream;
   }
+
+  Future<void> updatePost(String postId, String newMessage) async {
+    await posts.doc(postId).update({
+      'postMessage': newMessage,
+      'timestamp': Timestamp.now(),
+    });
+  }
+
+  Future<void> deletePost(String postId) async{
+    await posts.doc(postId).delete();
+  }
 }

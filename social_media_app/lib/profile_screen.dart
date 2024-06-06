@@ -17,6 +17,69 @@ class ProfileScreen extends StatelessWidget {
         .get();
   }
 
+  void updatePostDiaglog(BuildContext context, DocumentSnapshot post) {
+    final updatePostController = TextEditingController();
+    updatePostController.text = post['postMessage'];
+
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text("Edit your post"),
+            content: TextFormField(
+              controller: updatePostController,
+              decoration: const InputDecoration(
+                hintText: "Edit your post...",
+                border: OutlineInputBorder(),
+              ),
+              maxLines: null,
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text("Cancel"),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  firestoreDB.updatePost(post.id, updatePostController.text);
+                  Navigator.of(context).pop();
+                },
+                child: const Text("Save"),
+              ),
+            ],
+          );
+        });
+  }
+
+  void dedleteDialog(BuildContext context, DocumentSnapshot post) {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text("Delete your post"),
+            content:
+                const Text("Are you sure you want to delete this post? 😢"),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text("Cancel"),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  firestoreDB.deletePost(post.id);
+                  Navigator.of(context).pop();
+                },
+                child: const Text("Delete"),
+              ),
+            ],
+          );
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -112,11 +175,12 @@ class ProfileScreen extends StatelessWidget {
 
                               // Định dạng DateTime thành chuỗi thời gian
                               String formattedTime =
-                                  DateFormat('HH:mm  |  yyyy-MM-dd')
+                                  DateFormat('HH:mm  |  dd-MM-yyyy')
                                       .format(dateTime);
 
                               List<dynamic> likes = post['Likes'];
-                              bool isLiked = likes.contains(FirebaseAuth.instance.currentUser!.email);
+                              bool isLiked = likes.contains(
+                                  FirebaseAuth.instance.currentUser!.email);
 
                               return Padding(
                                 padding: const EdgeInsets.all(10),
@@ -128,10 +192,12 @@ class ProfileScreen extends StatelessWidget {
                                   child: ListTile(
                                     title: Text(message),
                                     subtitle: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
                                           children: [
                                             Text(
                                               formattedTime,
@@ -154,7 +220,9 @@ class ProfileScreen extends StatelessWidget {
                                             isLiked
                                                 ? Icons.favorite
                                                 : Icons.favorite_border,
-                                            color: isLiked ? Colors.red : Colors.grey,
+                                            color: isLiked
+                                                ? Colors.red
+                                                : Colors.grey,
                                           ),
                                         ),
                                         const SizedBox(width: 2),
@@ -166,14 +234,18 @@ class ProfileScreen extends StatelessWidget {
                                         ),
                                         const SizedBox(width: 3),
                                         GestureDetector(
-                                          onTap: () {},
+                                          onTap: () {
+                                            updatePostDiaglog(context, post);
+                                          },
                                           child: const Icon(
                                             Icons.create,
                                           ),
                                         ),
                                         const SizedBox(width: 3),
                                         GestureDetector(
-                                          onTap: () {},
+                                          onTap: () {
+                                            dedleteDialog(context, post);
+                                          },
                                           child: const Icon(
                                             Icons.delete,
                                           ),

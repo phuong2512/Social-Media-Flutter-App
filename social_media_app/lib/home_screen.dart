@@ -24,7 +24,7 @@ class _HomeScreenState extends State<HomeScreen> {
         title: const Text("Home"),
         backgroundColor: Colors.cyan,
         actions: [
-          IconButton(onPressed: logout, icon: const Icon(Icons.image_outlined))
+          IconButton(onPressed: () {}, icon: const Icon(Icons.image_outlined))
         ],
       ),
       drawer: Drawer(
@@ -35,9 +35,9 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 const DrawerHeader(
                     child: Icon(
-                      Icons.camera,
-                      size: 45,
-                    )),
+                  Icons.camera,
+                  size: 45,
+                )),
                 const SizedBox(height: 25),
                 Padding(
                   padding: const EdgeInsets.only(left: 25.0),
@@ -67,7 +67,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
             Padding(
-              padding: const EdgeInsets.only(left: 25.0),
+              padding: const EdgeInsets.only(left: 25.0, bottom: 25.0),
               child: ListTile(
                 leading: const Icon(
                   Icons.logout,
@@ -97,6 +97,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
+                    maxLines: null,
                   ),
                 ),
                 GestureDetector(
@@ -144,13 +145,17 @@ class _HomeScreenState extends State<HomeScreen> {
                           String userName = post['userName'];
 
                           // Chuyển timestamp thành DateTime
-                          DateTime dateTime = (post['timestamp'] as Timestamp).toDate();
+                          DateTime dateTime =
+                              (post['timestamp'] as Timestamp).toDate();
 
                           // Định dạng DateTime thành chuỗi thời gian
-                          String formattedTime = DateFormat('HH:mm  |  yyyy-MM-dd').format(dateTime);
+                          String formattedTime =
+                              DateFormat('HH:mm  |  dd-MM-yyyy')
+                                  .format(dateTime);
 
                           List<dynamic> likes = post['Likes'];
-                          bool isLiked = likes.contains(FirebaseAuth.instance.currentUser!.email);
+                          bool isLiked = likes.contains(
+                              FirebaseAuth.instance.currentUser!.email);
 
                           return Padding(
                               padding: const EdgeInsets.all(10),
@@ -162,24 +167,21 @@ class _HomeScreenState extends State<HomeScreen> {
                                 child: ListTile(
                                   title: Text(message),
                                   subtitle: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            userName,
-                                            style: const TextStyle(
-                                              color: Colors.grey,
-                                            ),
-                                          ),
-                                          Text(
-                                            formattedTime,
-                                            style: const TextStyle(
-                                              color: Colors.grey,
-                                            ),
-                                          ),
-                                        ],
+                                      Text(
+                                        "Posted by: " + userName,
+                                        maxLines: 1,
+                                        style: const TextStyle(
+                                            overflow: TextOverflow.ellipsis,
+                                            color: Colors.grey,
+                                            fontSize: 12),
+                                      ),
+                                      Text(
+                                        formattedTime,
+                                        style: const TextStyle(
+                                            color: Colors.grey, fontSize: 12),
                                       ),
                                     ],
                                   ),
@@ -194,7 +196,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                           isLiked
                                               ? Icons.favorite
                                               : Icons.favorite_border,
-                                          color: isLiked ? Colors.red : Colors.grey,
+                                          color: isLiked
+                                              ? Colors.red
+                                              : Colors.grey,
                                         ),
                                       ),
                                       const SizedBox(width: 4),
