@@ -1,14 +1,25 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:image_picker/image_picker.dart';
 import 'firebase_firestore.dart';
 import 'package:intl/intl.dart';
 
-class ProfileScreen extends StatelessWidget {
-  ProfileScreen({super.key});
+class ProfileScreen extends StatefulWidget {
+  const ProfileScreen({super.key});
 
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
   final User? currentUser = FirebaseAuth.instance.currentUser;
+
   final FirestoreDB firestoreDB = FirestoreDB();
+
+  XFile? _updatedImage;
 
   Future<DocumentSnapshot<Map<String, dynamic>>> getUserDetails() async {
     return await FirebaseFirestore.instance
@@ -17,50 +28,144 @@ class ProfileScreen extends StatelessWidget {
         .get();
   }
 
-  void updatePostDiaglog(BuildContext context, DocumentSnapshot post) {
+  void updatePostDialog(BuildContext context, DocumentSnapshot post) {
     final updatePostController = TextEditingController();
     updatePostController.text = post['postMessage'];
+    String? existingImageUrl = post['imageUrl'];
 
     showDialog(
         context: context,
         builder: (context) {
-          return AlertDialog(
-            title: const Text("Edit your post"),
-            content: TextFormField(
-              controller: updatePostController,
-              decoration: const InputDecoration(
-                hintText: "Edit your post...",
-                border: OutlineInputBorder(),
-              ),
-              maxLines: null,
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: const Text("Cancel"),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  firestoreDB.updatePost(post.id, updatePostController.text);
-                  Navigator.of(context).pop();
-                },
-                child: const Text("Save"),
-              ),
-            ],
+          return StatefulBuilder(
+            builder: (context, setState) {
+              return AlertDialog(
+                title: const Text("Edit your post"),
+                content: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextFormField(
+                        controller: updatePostController,
+                        decoration: const InputDecoration(
+                          filled: true,
+                          fillColor: Colors.white,
+                          hintText: "Edit your post...",
+                          border: OutlineInputBorder(),
+                        ),
+                        maxLines: null,
+                      ),
+                      const SizedBox(height: 10),
+                      if (existingImageUrl != null &&
+                          existingImageUrl!.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 10.0),
+                          child: FadeInImage.assetNetwork(
+                            placeholder: "assets/gifs/Loading.gif",
+                            image: existingImageUrl!,
+                            fadeInDuration: const Duration(milliseconds: 500),
+                            imageErrorBuilder: (context, error, stackTrace) {
+                              return const Icon(
+                                Icons.broken_image,
+                                color: Colors.red,
+                              );
+                            },
+                          ),
+                        ),
+
+                      ElevatedButton(
+                        onPressed: () async {
+                          final ImagePicker picker = ImagePicker();
+                          final XFile? pickedFile = await picker.pickImage(
+                              source: ImageSource.gallery);
+                          if (pickedFile != null) {
+                            setState(() {
+                              _updatedImage = pickedFile;
+                              existingImageUrl = '';
+                            });
+                          }
+                        },
+                        child: const Text("Update Image"),
+                      ),
+                      if (_updatedImage != null)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 10.0),
+                          child: Image.file(File(_updatedImage!.path)),
+                        ),
+                    ],
+                  ),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text("Cancel"),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      firestoreDB.updatePost(
+                          post.id, updatePostController.text, _updatedImage);
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text("Save"),
+                  ),
+                ],
+              );
+            },
           );
         });
   }
 
-  void dedleteDialog(BuildContext context, DocumentSnapshot post) {
+  void deletePostDialog(BuildContext context, DocumentSnapshot post) {
+    String? existingImageUrl = post['imageUrl'];
+
     showDialog(
         context: context,
         builder: (context) {
           return AlertDialog(
             title: const Text("Delete your post"),
-            content:
-                const Text("Are you sure you want to delete this post? 😢"),
+            content: SingleChildScrollView(
+              child:
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text("Are you sure you want to delete this post? 😢"),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border.all(color: Colors.black),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(post['postMessage'])),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    if (existingImageUrl != null && existingImageUrl.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            top: 10.0, bottom: 10.0),
+                        child: FadeInImage.assetNetwork(
+                          placeholder:
+                          "assets/gifs/Loading.gif",
+                          image: existingImageUrl,
+                          fadeInDuration: const Duration(
+                              milliseconds: 500),
+                          imageErrorBuilder:
+                              (context, error, stackTrace) {
+                            return const Icon(
+                              Icons.broken_image,
+                              color: Colors.red,
+                            );
+                          },
+                        ),
+                      ),
+                  ],
+                ),
+            ),
             actions: [
               TextButton(
                 onPressed: () {
@@ -72,6 +177,19 @@ class ProfileScreen extends StatelessWidget {
                 onPressed: () {
                   firestoreDB.deletePost(post.id);
                   Navigator.of(context).pop();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                          content: const Text('Delete post successfully!'),
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                        margin: EdgeInsets.only(
+                        right: 30,
+                        left: 30,
+                        bottom: MediaQuery.of(context).size.height - 150),
+                      )
+                  );
                 },
                 child: const Text("Delete"),
               ),
@@ -154,10 +272,21 @@ class ProfileScreen extends StatelessWidget {
                           );
                         } else if (!snapshot.hasData ||
                             snapshot.data!.docs.isEmpty) {
-                          return const Center(
+                          return Center(
                             child: Padding(
-                              padding: EdgeInsets.all(20),
-                              child: Text("No new posts! Post something!"),
+                              padding: const EdgeInsets.all(20),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Text("No new posts!"),
+                                  GestureDetector(
+                                    onTap: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: const Text(" Post something!", style: TextStyle(fontWeight: FontWeight.bold),),
+                                  ),
+                                ],
+                              ),
                             ),
                           );
                         } else {
@@ -169,11 +298,8 @@ class ProfileScreen extends StatelessWidget {
                               final post = posts[index];
                               String message = post['postMessage'];
 
-                              // Chuyển timestamp thành DateTime
                               DateTime dateTime =
                                   (post['timestamp'] as Timestamp).toDate();
-
-                              // Định dạng DateTime thành chuỗi thời gian
                               String formattedTime =
                                   DateFormat('HH:mm  |  dd-MM-yyyy')
                                       .format(dateTime);
@@ -181,6 +307,7 @@ class ProfileScreen extends StatelessWidget {
                               List<dynamic> likes = post['Likes'];
                               bool isLiked = likes.contains(
                                   FirebaseAuth.instance.currentUser!.email);
+                              String? imageUrl = post['imageUrl'];
 
                               return Padding(
                                 padding: const EdgeInsets.all(10),
@@ -195,17 +322,30 @@ class ProfileScreen extends StatelessWidget {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text(
-                                              formattedTime,
-                                              style: const TextStyle(
-                                                color: Colors.grey,
-                                              ),
+                                        if (imageUrl != null &&
+                                            imageUrl.isNotEmpty)
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                                top: 10.0, bottom: 10.0),
+                                            child: FadeInImage.assetNetwork(
+                                              placeholder:
+                                                  "assets/gifs/Loading.gif",
+                                              image: imageUrl,
+                                              fadeInDuration: const Duration(
+                                                  milliseconds: 500),
+                                              imageErrorBuilder:
+                                                  (context, error, stackTrace) {
+                                                return const Icon(
+                                                  Icons.broken_image,
+                                                  color: Colors.red,
+                                                );
+                                              },
                                             ),
-                                          ],
+                                          ),
+                                        Text(
+                                          formattedTime,
+                                          style: const TextStyle(
+                                              color: Colors.grey),
                                         ),
                                       ],
                                     ),
@@ -229,26 +369,21 @@ class ProfileScreen extends StatelessWidget {
                                         Text(
                                           '${likes.length}',
                                           style: const TextStyle(
-                                            color: Colors.grey,
-                                          ),
+                                              color: Colors.grey),
                                         ),
                                         const SizedBox(width: 3),
                                         GestureDetector(
                                           onTap: () {
-                                            updatePostDiaglog(context, post);
+                                            updatePostDialog(context, post);
                                           },
-                                          child: const Icon(
-                                            Icons.create,
-                                          ),
+                                          child: const Icon(Icons.create),
                                         ),
                                         const SizedBox(width: 3),
                                         GestureDetector(
                                           onTap: () {
-                                            dedleteDialog(context, post);
+                                            deletePostDialog(context, post);
                                           },
-                                          child: const Icon(
-                                            Icons.delete,
-                                          ),
+                                          child: const Icon(Icons.delete),
                                         ),
                                       ],
                                     ),

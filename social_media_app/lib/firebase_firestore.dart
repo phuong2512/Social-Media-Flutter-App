@@ -1,14 +1,28 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:image_picker/image_picker.dart';
 
 class FirestoreDB {
   User? user = FirebaseAuth.instance.currentUser;
 
   final CollectionReference posts =
-  FirebaseFirestore.instance.collection("Posts");
+      FirebaseFirestore.instance.collection("Posts");
 
-  Future<DocumentReference<Object?>> createPost(String message) async {
-    // Lấy thông tin người dùng từ collection "Users"
+  Future<DocumentReference<Object?>> createPost(String message,[XFile? image]) async {
+    String imageUrl = '';
+    if (image != null) {
+      final Reference storageRef = FirebaseStorage.instance
+          .ref()
+          .child('posts')
+          .child('${user!.email}-${Timestamp.now().millisecondsSinceEpoch}');
+      final UploadTask uploadTask = storageRef.putFile(File(image.path));
+      final TaskSnapshot downloadUrl = await uploadTask;
+      imageUrl = await downloadUrl.ref.getDownloadURL();
+    }
+
     DocumentSnapshot userDoc = await FirebaseFirestore.instance
         .collection("Users")
         .doc(user!.email)
@@ -20,19 +34,47 @@ class FirestoreDB {
       'userEmail': user!.email,
       'userName': userName,
       'postMessage': message,
+      'imageUrl': imageUrl,
       'timestamp': Timestamp.now(),
       'Likes': [],
     });
+  }
+
+  Future<void> updatePost(String postId, String newMessage,
+      [XFile? image]) async {
+    String imageUrl = '';
+    if (image != null) {
+      final Reference storageRef = FirebaseStorage.instance
+          .ref()
+          .child('posts')
+          .child('${user!.email}-${Timestamp.now().millisecondsSinceEpoch}');
+      final UploadTask uploadTask = storageRef.putFile(File(image.path));
+      final TaskSnapshot downloadUrl = await uploadTask;
+      imageUrl = await downloadUrl.ref.getDownloadURL();
+    }
+
+    final postData = {
+      'postMessage': newMessage,
+      'timestamp': Timestamp.now(),
+    };
+
+    if (imageUrl.isNotEmpty) {
+      postData['imageUrl'] = imageUrl;
+    }
+
+    await posts.doc(postId).update(postData);
+  }
+
+  Future<void> deletePost(String postId) async {
+    await posts.doc(postId).delete();
   }
 
   Future<void> toggleLike(DocumentSnapshot post) async {
     String userEmail = user!.email!;
     List<dynamic> likes = post['Likes'];
     if (likes.contains(userEmail)) {
-      // Nếu user đã like bài post này, remove like
       likes.remove(userEmail);
     } else {
-      // Nếu user chưa like bài post này, add like
       likes.add(userEmail);
     }
     await post.reference.update({'Likes': likes});
@@ -53,16 +95,5 @@ class FirestoreDB {
         .orderBy('timestamp', descending: true)
         .snapshots();
     return postStream;
-  }
-
-  Future<void> updatePost(String postId, String newMessage) async {
-    await posts.doc(postId).update({
-      'postMessage': newMessage,
-      'timestamp': Timestamp.now(),
-    });
-  }
-
-  Future<void> deletePost(String postId) async{
-    await posts.doc(postId).delete();
   }
 }
