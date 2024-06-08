@@ -106,6 +106,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       firestoreDB.updatePost(
                           post.id, updatePostController.text, _updatedImage);
                       Navigator.of(context).pop();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text('Update post successfully!'),
+                            behavior: SnackBarBehavior.floating,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(24),
+                            ),
+                            margin: EdgeInsets.only(
+                                right: 30,
+                                left: 30,
+                                bottom: MediaQuery.of(context).size.height - 150),
+                          )
+                      );
                     },
                     child: const Text("Save"),
                   ),
