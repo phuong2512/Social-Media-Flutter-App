@@ -11,6 +11,7 @@ class FirestoreDB {
   final CollectionReference posts =
       FirebaseFirestore.instance.collection("Posts");
 
+  //Phương thức tạo bài đăng
   Future<DocumentReference<Object?>> createPost(String message,[XFile? image]) async {
     String imageUrl = '';
     if (image != null) {
@@ -40,6 +41,7 @@ class FirestoreDB {
     });
   }
 
+  //Phương thức cập nhật bài đăng
   Future<void> updatePost(String postId, String newMessage,
       [XFile? image]) async {
     String imageUrl = '';
@@ -65,10 +67,12 @@ class FirestoreDB {
     await posts.doc(postId).update(postData);
   }
 
+  //Phương thức xóa bài đăng
   Future<void> deletePost(String postId) async {
     await posts.doc(postId).delete();
   }
 
+  //Phương thức cập nhật lượt thích
   Future<void> toggleLike(DocumentSnapshot post) async {
     String userEmail = user!.email!;
     List<dynamic> likes = post['Likes'];
@@ -80,6 +84,7 @@ class FirestoreDB {
     await post.reference.update({'Likes': likes});
   }
 
+  //Phương thức lấy bài đăng từ Firestore
   Stream<QuerySnapshot> getPostsStream() {
     final postStream = FirebaseFirestore.instance
         .collection("Posts")
@@ -88,6 +93,7 @@ class FirestoreDB {
     return postStream;
   }
 
+  //Phương thức lấy bài đăng từ Firestore theo email người dùng đăng nhập
   Stream<QuerySnapshot> getPostsByEmail(String email) {
     final postStream = FirebaseFirestore.instance
         .collection("Posts")

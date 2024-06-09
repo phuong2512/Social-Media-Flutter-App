@@ -45,6 +45,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
+
       drawer: Drawer(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -141,11 +142,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   padding: const EdgeInsets.all(17),
-                  // margin: const EdgeInsets.only(left: 20, right: 20),
                   child: Image.file(
                     File(_selectedImage!.path),
                   ),
                 ),
+                
                 Positioned(
                   top: -13,
                   right: -13,

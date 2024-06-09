@@ -14,7 +14,7 @@ class _AuthFirebaseState extends State<AuthFirebase> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: StreamBuilder(
+      body: StreamBuilder(      //Lắng nghe thay đổi từ stream
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
           if (snapshot.hasData){

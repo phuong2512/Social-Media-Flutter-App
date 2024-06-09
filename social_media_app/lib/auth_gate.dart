@@ -17,13 +17,17 @@ class _AuthGateState extends State<AuthGate> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
-  final formKey = GlobalKey<FormState>();
+  final formKey = GlobalKey<FormState>(); //Khóa quản lý trạng thái của Form
   final auth = FirebaseAuth.instance;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+
+      //Kiểm tra chế độ
       body: mode == AuthMode.register
+          
+          //Register
           ? Center(
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
@@ -46,15 +50,17 @@ class _AuthGateState extends State<AuthGate> {
                       "Social Media",
                       style: TextStyle(fontSize: 20),
                     ),
-                    //form login
+
+                    //form register
                     Form(
                       key: formKey,
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             const SizedBox(height: 25),
+
+                            //username
                             TextFormField(
                               controller: userController,
                               decoration: InputDecoration(
@@ -70,6 +76,7 @@ class _AuthGateState extends State<AuthGate> {
                                       : 'Required',
                             ),
                             const SizedBox(height: 10),
+
                             //email
                             TextFormField(
                               controller: emailController,
@@ -86,6 +93,7 @@ class _AuthGateState extends State<AuthGate> {
                                       : 'Required',
                             ),
                             const SizedBox(height: 10),
+
                             //password
                             TextFormField(
                               controller: passwordController,
@@ -102,6 +110,8 @@ class _AuthGateState extends State<AuthGate> {
                                       ? null
                                       : 'Required',
                             ),
+                            
+                            //confirm password
                             const SizedBox(height: 10),
                             TextFormField(
                               controller: confirmPasswordController,
@@ -119,6 +129,8 @@ class _AuthGateState extends State<AuthGate> {
                                       : 'Required',
                             ),
                             const SizedBox(height: 20),
+
+                            //button register
                             GestureDetector(
                                 onTap: () {
                                   register();
@@ -136,6 +148,7 @@ class _AuthGateState extends State<AuthGate> {
                                             fontSize: 16,
                                           )),
                                     ))),
+
                             const SizedBox(height: 15),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -162,6 +175,8 @@ class _AuthGateState extends State<AuthGate> {
                 ),
               ),
             )
+
+            //login
           : Center(
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
@@ -184,6 +199,7 @@ class _AuthGateState extends State<AuthGate> {
                       "Social Media",
                       style: TextStyle(fontSize: 20),
                     ),
+
                     //form login
                     Form(
                       key: formKey,
@@ -193,6 +209,7 @@ class _AuthGateState extends State<AuthGate> {
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             const SizedBox(height: 25),
+
                             //email
                             TextFormField(
                               controller: emailController,
@@ -209,6 +226,7 @@ class _AuthGateState extends State<AuthGate> {
                                       : 'Required',
                             ),
                             const SizedBox(height: 10),
+
                             //password
                             TextFormField(
                               controller: passwordController,
@@ -226,6 +244,7 @@ class _AuthGateState extends State<AuthGate> {
                                       : 'Required',
                             ),
                             const SizedBox(height: 10),
+
                             const Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
@@ -234,6 +253,8 @@ class _AuthGateState extends State<AuthGate> {
                               ],
                             ),
                             const SizedBox(height: 20),
+
+                            //buton login
                             GestureDetector(
                                 onTap: () {
                                   login();
@@ -251,6 +272,7 @@ class _AuthGateState extends State<AuthGate> {
                                             fontSize: 16,
                                           )),
                                     ))),
+
                             const SizedBox(height: 15),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -280,6 +302,7 @@ class _AuthGateState extends State<AuthGate> {
     );
   }
 
+  // Phương thức login
   Future<void> login() async {
     showDialog(
         context: context,
@@ -289,16 +312,16 @@ class _AuthGateState extends State<AuthGate> {
     final email = emailController.text.trim();
     final password = passwordController.text.trim();
     try {
-      if (formKey.currentState!.validate()) {
+      if (formKey.currentState!.validate()) { //Kiểm tra các trường nhập hợp lệ hay không
         await auth.signInWithEmailAndPassword(
           email: email,
           password: password,
         );
       }
-      if (mounted) {
-        Navigator.pop(context);
+      if (mounted) {    // Kiểm tra widget còn nằm trong cây không
+        Navigator.pop(context);  
       }
-    } on FirebaseAuthException catch (e) {
+    } on FirebaseAuthException catch (e) {    //Bắt lấy lỗi do FirebaseAuthException ném ra
       if (mounted) {
         Navigator.pop(context);
         messageError(e.code, context);
@@ -306,6 +329,7 @@ class _AuthGateState extends State<AuthGate> {
     }
   }
 
+  //Phương thức register
   Future<void> register() async {
     showDialog(
         context: context,
@@ -321,20 +345,20 @@ class _AuthGateState extends State<AuthGate> {
       final email = emailController.text.trim();
       final password = passwordController.text.trim();
       try {
-        //create an user
-        if (formKey.currentState!.validate()) {
+        //Tạo user
+        if (formKey.currentState!.validate()) {   //Kiểm tra các trường nhập hợp lệ hay không
           UserCredential? userCredential =
               await auth.createUserWithEmailAndPassword(
             email: email,
             password: password,
           );
 
-          //create and add user to firestore
+          //Thêm user vào firestore
           addUserFirestore(userCredential);
 
           if (mounted) Navigator.pop(context);
         }
-      } on FirebaseAuthException catch (e) {
+      } on FirebaseAuthException catch (e) {    
         if (mounted) {
           Navigator.pop(context);
           messageError(e.code, context);
@@ -343,6 +367,7 @@ class _AuthGateState extends State<AuthGate> {
     }
   }
 
+  //Phương thức thêm user vào Firestore
   Future<void> addUserFirestore(UserCredential? userCredential) async {
     if (userCredential != null && userCredential.user != null) {
       await FirebaseFirestore.instance
@@ -356,6 +381,7 @@ class _AuthGateState extends State<AuthGate> {
   }
 }
 
+//Hàm thông báo lỗi
 void messageError(String message, BuildContext context) {
   showDialog(
       context: context,
