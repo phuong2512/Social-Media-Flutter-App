@@ -8,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 class FirestoreDB {
   User? user = FirebaseAuth.instance.currentUser;
 
+  //tham chiếu collection
   final CollectionReference posts =
       FirebaseFirestore.instance.collection("Posts");
 
@@ -15,13 +16,13 @@ class FirestoreDB {
   Future<DocumentReference<Object?>> createPost(String message,[XFile? image]) async {
     String imageUrl = '';
     if (image != null) {
-      final Reference storageRef = FirebaseStorage.instance
-          .ref()
+      final Reference storageRef = FirebaseStorage.instance     //tham chiếu đến vị trí lưu ảnh trong Fisebase Storage
+          .ref()                    
           .child('posts')
-          .child('${user!.email}-${Timestamp.now().millisecondsSinceEpoch}');
-      final UploadTask uploadTask = storageRef.putFile(File(image.path));
-      final TaskSnapshot downloadUrl = await uploadTask;
-      imageUrl = await downloadUrl.ref.getDownloadURL();
+          .child('${user!.email}-${Timestamp.now().millisecondsSinceEpoch}');   //mili giây tính từ Epoch (01-01-1970 00:00:00 UTC)
+      final UploadTask uploadTask = storageRef.putFile(File(image.path));       
+      final TaskSnapshot downloadUrl = await uploadTask;            //lấy thông tin tham chiếu đến tệp đã tải lên
+      imageUrl = await downloadUrl.ref.getDownloadURL();            
     }
 
     DocumentSnapshot userDoc = await FirebaseFirestore.instance

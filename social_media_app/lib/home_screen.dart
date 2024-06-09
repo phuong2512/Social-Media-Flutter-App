@@ -96,6 +96,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
+      
       body: Column(
         children: [
           Padding(
@@ -114,6 +115,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     maxLines: null,
                   ),
                 ),
+
                 GestureDetector(
                   onTap: () {
                     postMessage();
@@ -133,6 +135,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
           ),
+
           if (_selectedImage != null)
             Expanded(
               child: Stack(children: [
@@ -161,6 +164,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ]),
             ),
+
           Expanded(
             child: StreamBuilder(
               stream: firestoreDB.getPostsStream(),
@@ -203,6 +207,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(color: Colors.black),
                           ),
+
                           child: ListTile(
                             title: Text(message),
                             subtitle: Column(
@@ -226,6 +231,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       },
                                     ),
                                   ),
+
                                 Text(
                                   "Posted by: $userName",
                                   maxLines: 1,
@@ -235,6 +241,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     fontSize: 12,
                                   ),
                                 ),
+
                                 Text(
                                   formattedTime,
                                   style: const TextStyle(
@@ -242,6 +249,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               ],
                             ),
+
                             trailing: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
@@ -258,6 +266,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         color: isLiked ? Colors.red : Colors.grey,
                                       ),
                                     ),
+
                                     Text(
                                       '${likes.length}',
                                       style: const TextStyle(
@@ -267,6 +276,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ],
                                 ),
                                 const SizedBox(width: 4,),
+
                                 Column(
                                   children: [
                                     GestureDetector(
@@ -321,6 +331,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 20),
                 ),
+
                 actions: [
                   ElevatedButton(
                     onPressed: () {

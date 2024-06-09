@@ -169,6 +169,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                               image: imageUrl,
                                               fadeInDuration: const Duration(
                                                   milliseconds: 500),
+                                              imageErrorBuilder: (context, error, stackTrace) {
+                                                return const Icon(
+                                                  Icons.broken_image,
+                                                  color: Colors.red,
+                                                );
+                                              },
                                             ),
                                           ),
 
@@ -366,6 +372,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(
                       height: 10,
                     ),
+
                     Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
@@ -377,6 +384,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(
                       height: 10,
                     ),
+
                     if (existingImageUrl != null && existingImageUrl.isNotEmpty)
                       Padding(
                         padding: const EdgeInsets.only(
@@ -406,6 +414,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 },
                 child: const Text("Cancel"),
               ),
+
               ElevatedButton(
                 onPressed: () {
                   firestoreDB.deletePost(post.id);
