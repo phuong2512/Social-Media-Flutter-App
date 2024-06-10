@@ -15,9 +15,10 @@
 
 ## Yêu cầu hệ thống
 
+- Android SDK
 - Flutter SDK
-- Firebase account
-- Thiết bị chạy Android
+- Firebase CLI
+- Thiết bị Android hoặc máy ảo trên Android Studio
 
 ## Cài đặt
 
