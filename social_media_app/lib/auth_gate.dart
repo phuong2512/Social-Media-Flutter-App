@@ -13,10 +13,12 @@ class AuthGate extends StatefulWidget {
 
 class _AuthGateState extends State<AuthGate> {
   var mode = AuthMode.login;
+
   final userController = TextEditingController();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
+  
   final formKey = GlobalKey<FormState>(); //Khóa quản lý trạng thái của Form
   final auth = FirebaseAuth.instance;
 
