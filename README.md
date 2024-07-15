@@ -1,4 +1,4 @@
-# Social Media App
+# Social Media App - Chill and Share
 
 Ứng dụng mạng xã hội đăng tải trạng thái sử dụng Flutter Firebase.
 
