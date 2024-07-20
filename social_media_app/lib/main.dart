@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:social_media_app/auth_firebase.dart';
-import 'package:social_media_app/auth_gate.dart';
-import 'package:social_media_app/home_screen.dart';
-import 'package:social_media_app/profile_screen.dart';
+import 'package:social_media_app/firebase/auth_firebase.dart';
+import 'package:social_media_app/auth_gate/auth_gate.dart';
+import 'package:social_media_app/page/home_screen.dart';
+import 'package:social_media_app/page/profile_screen.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/auth_gate':(context) => const AuthGate(),
         '/home_screen':(context) => const HomeScreen(),
-        '/profile_screen':(context) => ProfileScreen(),
+        '/profile_screen':(context) => const ProfileScreen(),
       },
     );
   }

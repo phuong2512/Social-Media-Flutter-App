@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'home_screen.dart';
-import 'auth_gate.dart';
+import '../components/bottom_navigation_bar.dart';
+import '../page/home_screen.dart';
+import '../auth_gate/auth_gate.dart';
 
 class AuthFirebase extends StatefulWidget {
   const AuthFirebase({super.key});
@@ -18,7 +19,7 @@ class _AuthFirebaseState extends State<AuthFirebase> {
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
           if (snapshot.hasData){
-            return const HomeScreen();
+            return const AppNavigation();
           }
           else {
             return const AuthGate();

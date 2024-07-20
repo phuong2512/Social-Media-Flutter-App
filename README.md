@@ -1,10 +1,10 @@
 # Social Media App
 
-Ứng dụng mạng xã hội đăng tải trạng thái sử dụng Flutter Firebase.
+Ứng dụng mạng xã hội đăng tải hình ảnh, trạng thái trực tuyến dành cho nền tàng Android sử dụng Flutter Firebase.
 
 ## Giới thiệu
 
-Ứng dụng mạng xã hội cho phép người dùng đăng tải trạng thái của bản thân, chia sẻ hình ảnh, cuộc sống thường ngày lên mạng xã hội với thời gian thực.
+Ứng dụng di động truyền thông xã hội cho hệ điều hành Android, cho phép người dùng chia sẻ trạng thái, hình ảnh, và thông tin cá nhân hàng ngày trên mạng xã hội theo thời gian thực. Ngoài ra, người dùng cũng có thể đọc các bài báo, tin tức được cập nhật theo thời gian thực.
 
 ## Tính năng
 
@@ -12,6 +12,8 @@
 - Đăng tải trạng thái, hình ảnh
 - Quản danh sách bài đăng
 - Xem các bài đăng của mọi người
+- Bình luận, tương tác với bài đăng
+- Đọc báo, tin tức
 
 ## Yêu cầu hệ thống
 
@@ -20,26 +22,8 @@
 - Firebase CLI
 - Thiết bị Android hoặc máy ảo trên Android Studio
 
-## Cài đặt
+## Demo
 
-1. **Clone dự án từ GitHub:**
-
-    ```bash
-    git clone https://github.com/phuong2512/Social-Media-Flutter-App.git
-    cd social_media_app
-    ```
-
-2. **Cài đặt các gói phụ thuộc:**
-
-    ```bash
-    flutter pub get
-    ```
-
-3. **Chạy ứng dụng trên thiết bị hoặc trình giả lập:**
-
-    ```bash
-    flutter run
-    ```
 
 ## Tác giả
 

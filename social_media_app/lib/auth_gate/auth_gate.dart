@@ -18,17 +18,16 @@ class _AuthGateState extends State<AuthGate> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
-  
+
   final formKey = GlobalKey<FormState>(); //Khóa quản lý trạng thái của Form
   final auth = FirebaseAuth.instance;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
       //Kiểm tra chế độ
       body: mode == AuthMode.register
-          
+
           //Register
           ? Center(
               child: SingleChildScrollView(
@@ -49,7 +48,7 @@ class _AuthGateState extends State<AuthGate> {
                     ),
                     const SizedBox(height: 25),
                     const Text(
-                      "Social Media",
+                      "Chill and Share",
                       style: TextStyle(fontSize: 20),
                     ),
 
@@ -66,7 +65,6 @@ class _AuthGateState extends State<AuthGate> {
                             TextFormField(
                               controller: userController,
                               decoration: InputDecoration(
-                                icon: const Icon(Icons.person_outlined),
                                 label: const Text('Username'),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
@@ -83,7 +81,6 @@ class _AuthGateState extends State<AuthGate> {
                             TextFormField(
                               controller: emailController,
                               decoration: InputDecoration(
-                                icon: const Icon(Icons.email_outlined),
                                 label: const Text('Email'),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
@@ -100,11 +97,10 @@ class _AuthGateState extends State<AuthGate> {
                             TextFormField(
                               controller: passwordController,
                               decoration: InputDecoration(
-                                icon: const Icon(Icons.security_rounded),
+                                label: const Text('Password'),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
-                                label: const Text('Password'),
                               ),
                               obscureText: true,
                               validator: (value) =>
@@ -112,17 +108,16 @@ class _AuthGateState extends State<AuthGate> {
                                       ? null
                                       : 'Required',
                             ),
-                            
+
                             //confirm password
                             const SizedBox(height: 10),
                             TextFormField(
                               controller: confirmPasswordController,
                               decoration: InputDecoration(
-                                icon: const Icon(Icons.security_outlined),
+                                label: const Text('Confirm Password'),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
-                                label: const Text('Confirm Password'),
                               ),
                               obscureText: true,
                               validator: (value) =>
@@ -178,7 +173,7 @@ class _AuthGateState extends State<AuthGate> {
               ),
             )
 
-            //login
+          //login
           : Center(
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
@@ -198,7 +193,7 @@ class _AuthGateState extends State<AuthGate> {
                     ),
                     const SizedBox(height: 25),
                     const Text(
-                      "Social Media",
+                      "Chill and Share",
                       style: TextStyle(fontSize: 20),
                     ),
 
@@ -216,7 +211,6 @@ class _AuthGateState extends State<AuthGate> {
                             TextFormField(
                               controller: emailController,
                               decoration: InputDecoration(
-                                icon: const Icon(Icons.email_outlined),
                                 label: const Text('Email'),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
@@ -233,11 +227,10 @@ class _AuthGateState extends State<AuthGate> {
                             TextFormField(
                               controller: passwordController,
                               decoration: InputDecoration(
-                                icon: const Icon(Icons.security_rounded),
+                                label: const Text('Password'),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
-                                label: const Text('Password'),
                               ),
                               obscureText: true,
                               validator: (value) =>
@@ -245,15 +238,7 @@ class _AuthGateState extends State<AuthGate> {
                                       ? null
                                       : 'Required',
                             ),
-                            const SizedBox(height: 10),
 
-                            const Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Text("Forgot Password?",
-                                    style: TextStyle(color: Colors.grey))
-                              ],
-                            ),
                             const SizedBox(height: 20),
 
                             //buton login
@@ -314,16 +299,19 @@ class _AuthGateState extends State<AuthGate> {
     final email = emailController.text.trim();
     final password = passwordController.text.trim();
     try {
-      if (formKey.currentState!.validate()) { //Kiểm tra các trường nhập hợp lệ hay không
+      if (formKey.currentState!.validate()) {
+        //Kiểm tra các trường nhập hợp lệ hay không
         await auth.signInWithEmailAndPassword(
           email: email,
           password: password,
         );
       }
-      if (mounted) {    // Kiểm tra widget còn nằm trong cây không
-        Navigator.pop(context);  
+      if (mounted) {
+        // Kiểm tra widget còn nằm trong cây không
+        Navigator.pop(context);
       }
-    } on FirebaseAuthException catch (e) {    //Bắt lấy lỗi do FirebaseAuthException ném ra
+    } on FirebaseAuthException catch (e) {
+      //Bắt lấy lỗi do FirebaseAuthException ném ra
       if (mounted) {
         Navigator.pop(context);
         messageError(e.code, context);
@@ -348,7 +336,8 @@ class _AuthGateState extends State<AuthGate> {
       final password = passwordController.text.trim();
       try {
         //Tạo user
-        if (formKey.currentState!.validate()) {   //Kiểm tra các trường nhập hợp lệ hay không
+        if (formKey.currentState!.validate()) {
+          //Kiểm tra các trường nhập hợp lệ hay không
           UserCredential? userCredential =
               await auth.createUserWithEmailAndPassword(
             email: email,
@@ -360,7 +349,7 @@ class _AuthGateState extends State<AuthGate> {
 
           if (mounted) Navigator.pop(context);
         }
-      } on FirebaseAuthException catch (e) {    
+      } on FirebaseAuthException catch (e) {
         if (mounted) {
           Navigator.pop(context);
           messageError(e.code, context);
@@ -378,16 +367,27 @@ class _AuthGateState extends State<AuthGate> {
           .set({
         'email': userCredential.user!.email,
         'username': userController.text,
+        'avatarUrl': "",
       });
     }
   }
 }
 
 //Hàm thông báo lỗi
-void messageError(String message, BuildContext context) {
+void messageError(String error, BuildContext context) {
+  String errorMessage = error;
+  if (error == "invalid-email") {
+    errorMessage = "The email you entered is not valid";
+  } else if (error == 'invalid-credential') {
+    errorMessage = "Wrong password or email";
+  } else if (error == 'weak-password') {
+    errorMessage = 'Try a stronger password';
+  } else if (error == 'email-already-in-use') {
+    errorMessage = 'The email is already in use';
+  }
   showDialog(
       context: context,
       builder: (context) => AlertDialog(
-            title: Text(message),
+            title: Text(errorMessage),
           ));
 }
