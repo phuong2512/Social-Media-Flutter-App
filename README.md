@@ -1,4 +1,4 @@
-# Social Media App
+# Social Media App - Chill and Share
 
 Ứng dụng mạng xã hội đăng tải hình ảnh, trạng thái trực tuyến dành cho nền tàng Android sử dụng Flutter Firebase.
 
